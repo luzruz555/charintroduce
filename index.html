@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>연애 로딩중 2</title>
+<meta name="description" content="연애 로딩중 2 캐릭터 PV">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap">
+<style>
+/* Layout: 한 화면 PV 무대. 무채색 배경에 캐릭터 색이 살짝 번지고, 누끼 캐릭터를 카메라처럼 훑는다(발끝 → 전신 → 얼굴 → 프로필). 밝은 단일 테마. */
+@property --tint { syntax: '<color>'; inherits: true; initial-value: #e7e2ea; }
+@property --tint-deep { syntax: '<color>'; inherits: true; initial-value: #cfc6d6; }
+
+:root {
+  padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px);
+  --bg: #ecebee;
+  --bg-2: #f7f6f8;
+  --pink: #ff5fae;
+  --violet: #9a5cff;
+  --ink: #3d3445;
+  --soft: #857c8e;
+  --white: #ffffff;
+  --line: rgba(61, 52, 69, 0.12);
+
+  --f-logo: 'Jua', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --f-body: 'Gowun Dodum', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+
+  --accent: #ff5fae;
+  --tint: #e7e2ea;
+  --tint-deep: #cfc6d6;
+  --hair: #e9e4f0;
+  --hair2: #c8bfe0;
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
+h1, h2, h3, p { margin: 0; }
+body { color: var(--ink); font-family: var(--f-body); overflow: hidden; background: var(--bg); }
+
+/* 무채색 바탕 + 캐릭터 색 한 방울 */
+.backdrop {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  transition: --tint 1s ease, --tint-deep 1s ease;
+  background:
+    radial-gradient(ellipse 55% 70% at 50% 62%, rgba(255,255,255,.95) 0%, transparent 70%),
+    radial-gradient(circle at 82% 18%, var(--tint) 0%, transparent 45%),
+    radial-gradient(circle at 12% 88%, var(--tint) 0%, transparent 40%),
+    linear-gradient(180deg, var(--bg-2) 0%, var(--bg) 55%, var(--tint) 100%);
+}
+.backdrop::before {
+  content: ""; position: absolute; inset: 0;
+  background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse at 50% 50%, #000 0%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 50%, #000 0%, transparent 75%);
+  opacity: .5;
+}
+.backdrop::after {
+  content: ""; position: absolute; left: 50%; top: -20%; width: 46%; height: 140%;
+  translate: -50% 0; rotate: 14deg;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.7), transparent);
+  filter: blur(8px);
+}
+
+.app {
+  position: relative; z-index: 1; height: 100%;
+  display: flex; flex-direction: column; gap: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 12px;
+  max-width: 1320px; margin: 0 auto;
+}
+
+.top { display: flex; align-items: center; gap: 12px; }
+.mini-logo { font-family: var(--f-logo); font-size: 15px; color: var(--violet); white-space: nowrap; }
+.mini-logo b { color: var(--pink); font-weight: 400; }
+.segs { display: flex; gap: 4px; flex: 1; min-width: 0; }
+.seg { flex: 1; height: 5px; border-radius: 99px; background: rgba(255,255,255,.85); box-shadow: inset 0 0 0 1px var(--line); overflow: hidden; }
+.seg i { display: block; height: 100%; width: 0; background: var(--ink); border-radius: 99px; }
+
+.stage { position: relative; flex: 1; min-height: 0; overflow: hidden; cursor: pointer; }
+
+/* 로고 글씨: 그라데이션 + 흰 테두리 + 빛 */
+.logo {
+  position: relative; display: inline-block;
+  font-family: var(--f-logo); font-weight: 400; line-height: 1.05; letter-spacing: -.01em;
+  background: linear-gradient(180deg, #ff8cc6 0%, var(--pink) 45%, #e0379a 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.logo::before {
+  content: attr(data-text);
+  position: absolute; inset: 0; z-index: -1;
+  color: var(--white);
+  -webkit-text-stroke: .16em var(--white);
+  filter: drop-shadow(0 0 .16em rgba(170, 90, 255, .45)) drop-shadow(0 .06em .1em rgba(61,52,69,.18));
+}
+.logo.alt { background: linear-gradient(180deg, #c9a6ff 0%, var(--violet) 60%, #7a3df0 100%); -webkit-background-clip: text; background-clip: text; }
+.logo.char-name { background: linear-gradient(180deg, #ffffff -30%, var(--accent) 55%, var(--tint-deep) 160%); -webkit-background-clip: text; background-clip: text; }
+
+.scene { position: absolute; inset: 0; }
+.t { opacity: 0; transform: translateY(16px) scale(.98); transition: opacity .5s ease, transform .6s cubic-bezier(.2,.9,.25,1.2); }
+.t.on { opacity: 1; transform: none; }
+.instant .t { transition: none !important; }
+
+.bgname {
+  position: absolute; left: 50%; top: 50%; translate: -50% -50%;
+  font-family: var(--f-logo); font-size: clamp(120px, 26vw, 360px); line-height: .9;
+  white-space: nowrap; letter-spacing: -.02em;
+  color: rgba(255,255,255,.55);
+  -webkit-text-stroke: 2px var(--tint-deep);
+  opacity: .55; pointer-events: none; user-select: none;
+}
+
+/* ── 오프닝 ── */
+.title-scene { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; text-align: center; }
+.title-logo { font-size: clamp(64px, 12vw, 168px); line-height: 1.05; font-weight: 400; }
+.title-logo .row { display: block; }
+.title-logo .two { font-size: 1.15em; margin-left: .08em; }
+.heart-ic { width: .45em; height: .45em; fill: var(--pink); vertical-align: .55em; filter: drop-shadow(0 0 4px #fff) drop-shadow(0 0 4px #fff); }
+.loading { width: min(420px, 80%); display: flex; flex-direction: column; gap: 8px; }
+.bar { height: 12px; border-radius: 99px; background: var(--white); box-shadow: 0 0 0 2px var(--white), 0 0 0 3px var(--line); overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #ff9fd0, var(--pink), var(--violet)); border-radius: 99px; }
+.load-txt { font-family: var(--f-logo); font-size: 16px; color: var(--soft); display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; }
+.tap-hint { font-size: 13px; color: var(--soft); }
+.gate {
+  font-family: var(--f-logo); font-size: 22px; color: var(--white);
+  background: var(--ink); border: 0; border-radius: 99px; padding: 14px 30px; cursor: pointer;
+  box-shadow: 0 0 0 4px var(--white), 0 10px 26px -8px rgba(61,52,69,.5);
+}
+
+/* ── 캐릭터 장면: 카메라 (JS가 매 프레임 위치를 계산) ── */
+.cam { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
+.cam img { width: 100%; height: 100%; object-fit: contain; object-position: bottom center; display: block;
+  filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 2px #fff) drop-shadow(0 22px 34px rgba(61,52,69,.22)); }
+
+/* 누끼가 아직 없을 때: 머리색 실루엣 (얼굴 위치 = 50%, 17%) */
+.sil { position: absolute; inset: 0; }
+.sil .head {
+  position: absolute; left: 50%; top: 17%; width: 34%; aspect-ratio: 1; transform: translate(-50%, -50%);
+  border-radius: 50%; background: linear-gradient(170deg, var(--hair), var(--hair2)); box-shadow: 0 0 0 5px var(--white);
+}
+.sil .body {
+  position: absolute; left: 50%; top: 30%; bottom: 20%; width: 58%; transform: translateX(-50%);
+  border-radius: 45% 45% 10% 10% / 26% 26% 6% 6%;
+  background: linear-gradient(180deg, #fff, rgba(255,255,255,.75)); box-shadow: 0 0 0 5px var(--white);
+}
+.sil .legs { position: absolute; left: 50%; bottom: 0; width: 26%; height: 22%; transform: translateX(-50%);
+  background: linear-gradient(90deg, var(--tint-deep) 0 38%, transparent 38% 62%, var(--tint-deep) 62% 100%); border-radius: 6px 6px 0 0; }
+.sil .ribbon { position: absolute; left: 50%; top: 33.5%; width: 9%; aspect-ratio: 1.6; transform: translateX(-50%); background: var(--accent); border-radius: 40% 40% 50% 50%; }
+.sil .note { position: absolute; left: 50%; top: 52%; transform: translateX(-50%); width: 80%; text-align: center; font-size: 12px; line-height: 1.5; color: var(--soft); }
+
+/* 말풍선 */
+.bubble {
+  position: absolute; left: 56%; top: 18%;
+  width: min(460px, 40%);
+  background: var(--white); border: 3px solid var(--accent); border-radius: 26px;
+  padding: 18px 22px;
+  font-family: var(--f-logo); font-size: clamp(19px, 2.1vw, 27px); line-height: 1.5; color: var(--ink);
+  box-shadow: 0 10px 0 -2px var(--tint), 0 18px 40px -14px rgba(61,52,69,.35);
+}
+.bubble::before { content: ""; position: absolute; left: -16px; top: 34px; border: 12px solid transparent; border-right: 16px solid var(--accent); border-left: 0; }
+.bubble::after { content: ""; position: absolute; left: -10px; top: 37px; border: 9px solid transparent; border-right: 12px solid var(--white); border-left: 0; }
+.bubble.flip { left: auto; right: 56%; }
+.bubble.flip::before { left: auto; right: -16px; border: 12px solid transparent; border-left: 16px solid var(--accent); border-right: 0; }
+.bubble.flip::after { left: auto; right: -10px; border: 9px solid transparent; border-left: 12px solid var(--white); border-right: 0; }
+.bubble .who { display: block; font-size: 14px; color: var(--accent); margin-bottom: 4px; }
+.caret { display: inline-block; width: 3px; height: 1em; margin-left: 3px; vertical-align: -.12em; background: var(--accent); border-radius: 2px; animation: blink .9s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* 프로필 */
+.profile { position: absolute; left: 54%; top: 50%; width: min(480px, 42%); display: flex; flex-direction: column; gap: 14px; translate: 0 -50%; }
+.profile.flip { left: auto; right: 54%; align-items: flex-end; text-align: right; }
+.profile.flip .p-meta, .profile.flip .p-tags { justify-content: flex-end; }
+.p-name { font-size: clamp(56px, 7vw, 104px); }
+.p-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill { font-family: var(--f-logo); font-size: 17px; padding: 6px 16px; border-radius: 99px; background: var(--white); color: var(--ink); box-shadow: 0 0 0 2px var(--accent); }
+.pill.solid { background: var(--accent); color: var(--white); }
+.p-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.p-tags span { font-family: var(--f-logo); font-size: 18px; color: var(--ink); background: rgba(255,255,255,.9); padding: 4px 12px; border-radius: 12px; box-shadow: inset 0 -3px 0 var(--tint-deep); }
+
+/* ── 엔딩 ── */
+.end-scene { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; text-align: center; }
+.end-lead { font-family: var(--f-logo); font-size: clamp(22px, 3vw, 36px); color: var(--soft); }
+.end-logo { font-size: clamp(48px, 8vw, 116px); }
+.faces { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.face {
+  width: 74px; aspect-ratio: 1; border-radius: 50%;
+  background-color: var(--white); background-repeat: no-repeat;
+  box-shadow: 0 0 0 4px var(--white), 0 0 0 7px var(--c, var(--pink));
+  display: grid; place-items: center; font-family: var(--f-logo); font-size: 22px; color: var(--white);
+}
+.cta {
+  font-family: var(--f-logo); font-size: clamp(20px, 2.4vw, 28px);
+  color: var(--white); text-decoration: none;
+  padding: 16px 34px; border-radius: 99px;
+  background: linear-gradient(90deg, var(--pink), var(--violet));
+  box-shadow: 0 0 0 4px var(--white), 0 12px 30px -8px rgba(154, 92, 255, .6);
+  display: inline-flex; align-items: center; gap: 10px;
+  animation: pulse 1.8s ease-in-out infinite;
+}
+.cta[aria-disabled="true"] { filter: grayscale(.7); opacity: .7; animation: none; cursor: default; }
+.cta svg { width: 1em; height: 1em; fill: currentColor; }
+@keyframes pulse { 50% { transform: scale(1.04); } }
+.replay { font-size: 14px; color: var(--soft); background: none; border: 0; cursor: pointer; text-decoration: underline; font-family: var(--f-body); }
+
+/* ── 하단 컨트롤 ── */
+.controls { display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; }
+.btn {
+  font: 15px var(--f-logo); color: var(--ink);
+  background: var(--white); border: 0; border-radius: 99px;
+  padding: 9px 16px; cursor: pointer; box-shadow: 0 0 0 1px var(--line); white-space: nowrap;
+}
+.btn:hover { box-shadow: 0 0 0 2px var(--ink); }
+.btn.primary { background: var(--ink); color: var(--white); box-shadow: none; }
+.btn.on { color: var(--pink); box-shadow: 0 0 0 2px var(--pink); }
+.btn:focus-visible, .replay:focus-visible, .cta:focus-visible, .gate:focus-visible, .panel label:focus-within { outline: 3px solid var(--pink); outline-offset: 3px; }
+.spacer { flex: 1; }
+.counter { font: 14px var(--f-logo); color: var(--soft); font-variant-numeric: tabular-nums; }
+
+/* 이미지·음악 넣기 패널 */
+.panel {
+  position: absolute; right: 0; bottom: 0; z-index: 5;
+  width: min(520px, 100%); max-height: 100%; overflow-y: auto;
+  background: var(--white); border-radius: 22px;
+  box-shadow: 0 0 0 1px var(--line), 0 20px 50px -20px rgba(61,52,69,.5);
+  padding: 18px; display: flex; flex-direction: column; gap: 10px; cursor: default;
+}
+.panel h2 { font: 22px var(--f-logo); color: var(--ink); }
+.panel h3 { font: 15px var(--f-logo); color: var(--soft); margin-top: 6px; }
+.panel p { font-size: 13.5px; line-height: 1.65; color: var(--soft); }
+.prow { display: flex; align-items: center; gap: 10px; font-size: 15px; padding-block: 2px; }
+.prow .pname { flex: 1; min-width: 0; font-family: var(--f-logo); }
+.prow .ok { font-size: 12px; color: var(--pink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 40%; }
+.dot { width: 14px; height: 14px; border-radius: 50%; flex: none; box-shadow: 0 0 0 2px var(--white), 0 0 0 3px var(--line); }
+.panel label, .panel .mini { font: 13px var(--f-logo); color: var(--ink); background: var(--bg); border: 0; border-radius: 99px; padding: 6px 12px; cursor: pointer; white-space: nowrap; }
+.panel input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.picker { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.picker .frame { position: relative; display: inline-block; cursor: crosshair; background: repeating-conic-gradient(#efedf2 0 25%, #fff 0 50%) 0 0 / 16px 16px; border-radius: 12px; }
+.picker img { display: block; max-height: 46vh; max-width: 100%; }
+.picker .mark { position: absolute; width: 26px; height: 26px; border: 3px solid var(--pink); border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 0 2px #fff; pointer-events: none; }
+
+@media (max-width: 760px) {
+  .mini-logo { display: none; }
+  .bubble, .bubble.flip { left: 50%; right: auto; top: auto; bottom: 14px; translate: -50% 0; width: calc(100% - 8px); font-size: 18px; padding: 14px 16px; }
+  .bubble::before, .bubble.flip::before { left: 50%; right: auto; top: -22px; translate: -50% 0; border: 12px solid transparent; border-bottom: 16px solid var(--accent); border-top: 0; }
+  .bubble::after, .bubble.flip::after { left: 50%; right: auto; top: -14px; translate: -50% 0; border: 9px solid transparent; border-bottom: 12px solid var(--white); border-top: 0; }
+  .profile, .profile.flip {
+    left: 50%; right: auto; top: auto; bottom: 10px; translate: -50% 0; width: calc(100% - 8px);
+    align-items: flex-start; text-align: left;
+    background: rgba(255,255,255,.9); border-radius: 22px; padding: 16px 18px; gap: 10px; box-shadow: 0 0 0 1px var(--line);
+  }
+  .profile.flip .p-meta, .profile.flip .p-tags { justify-content: flex-start; }
+  .p-name { font-size: 48px; }
+  .pill { font-size: 14px; padding: 5px 12px; }
+  .p-tags span { font-size: 15px; }
+  .btn { padding: 8px 11px; font-size: 13px; }
+  .counter { display: none; }
+  .face { width: 56px; font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) { .cta { animation: none; } }
+[hidden] { display: none !important; }
+img { max-width: 100%; }
+body { margin: 0; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="heart" viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.3C.5 8.1 2.1 4.8 5.5 4.1 8 3.6 10 5 12 7.4 14 5 16 3.6 18.5 4.1c3.4.7 5 4 3.5 7.6C19.5 16.4 12 21 12 21z"/></symbol>
+</svg>
+<div class="backdrop" aria-hidden="true"></div>
+
+<div class="app" id="app">
+  <div class="top">
+    <div class="mini-logo">연애 <b>로딩중</b> 2</div>
+    <div class="segs" id="segs" aria-hidden="true"></div>
+  </div>
+
+  <main class="stage" id="stage" aria-live="polite">
+    <div class="scene" id="scene"></div>
+
+  </main>
+
+  <div class="controls">
+    <button class="btn" id="prev" type="button" aria-label="이전 장면">◀</button>
+    <button class="btn primary" id="play" type="button">❚❚ 정지</button>
+    <button class="btn" id="next" type="button" aria-label="다음 장면">▶</button>
+    <span class="counter" id="counter"></span>
+    <span class="spacer"></span>
+    <button class="btn" id="musicBtn" type="button" hidden>♪ 음악</button>
+  </div>
+</div>
+
+<script>
+/* ================= 설정 ================= */
+/* 채팅 링크: 넣으면 마지막 화면 버튼이 켜져요 */
+const CHAT_URL = '';
+
+/* 파일 위치: img/캐릭터id.png, bgm/bgm.mp3 */
+const IMG_DIR = 'img/';
+const BGM_FILE = 'bgm/bgm.mp3';
+
+/* 얼굴 위치 (이미지 가로·세로 비율, 0~1). face.html에서 찍은 값을 그대로 붙여넣으면 돼요 */
+const FACE = {
+  jiyul:   [0.50, 0.17],
+  prefect: [0.50, 0.17],
+  soi:     [0.50, 0.17],
+  sia:     [0.50, 0.17],
+  chaeyun: [0.50, 0.17],
+  huiyul:  [0.50, 0.17],
+  iru:     [0.50, 0.17],
+};
+/* ======================================== */
+
+/* 캐릭터 설정. move = 카메라 무빙 성격
+   from: 시작 방향(-1 왼쪽, 1 오른쪽, 0 정면) / sway: 좌우 흔들림 폭 / swayHz: 흔들림 횟수
+   rise: 발끝에서 올라오는 시간(ms) / tilt: 기울기(도) / side: 얼굴·프로필 때 캐릭터가 놓일 쪽
+   snap: 얼굴로 빠르게 / bounce: 전신에서 통통 / bob: 둥실둥실 / steps: 디지털 끊김 / diag: 대각선으로 훑기 */
+const CHARS = [
+  { id: 'jiyul', name: '서지율', student: true, age: '1학년 · 17세',
+    quote: "'사랑은 오래 참고'... 누가 그랬더라. 아, 방금 내가 지었어.",
+    tags: ['밝음', '수다쟁이', '문학소녀'], roma: 'JIYUL',
+    accent: '#ff8a3d', hair: '#f4f0f8', hair2: '#cfc4e6',
+    move: { from: -1, sway: .07, swayHz: 1, rise: 2600, tilt: 2, side: 'left' } },
+  { id: 'prefect', name: '', redacted: true, student: true, age: '1학년 · 17세',
+    quote: '교칙 제14조 위반이다. 벌점 2점, 방과 후 선도부실로 와.',
+    tags: ['원칙주의', '츤데레', '선도부'], roma: 'PREFECT',
+    accent: '#e2405a', hair: '#2a2a36', hair2: '#101018',
+    move: { from: 0, sway: 0, swayHz: 0, rise: 1900, tilt: 0, side: 'right', snap: true } },
+  { id: 'soi', name: '유소이', student: true, age: '1학년 · 17세',
+    quote: '잠깐 오 분만 빌려줘! ...아 됐다, 말하니까 좀 낫네!',
+    tags: ['아이돌 지망생', '노력파', '분위기 메이커'], roma: 'SOI',
+    accent: '#ff4fa0', hair: '#f6eedc', hair2: '#f3a3c4',
+    move: { from: 1, sway: .1, swayHz: 1.5, rise: 2300, tilt: 3, side: 'left', bounce: true } },
+  { id: 'sia', name: '윤시아', student: true, age: '1학년 · 17세',
+    quote: '어차피 나 같은 건... ...진짜? 헤헤, 아 아니, 방금 웃은 거 아님.',
+    tags: ['자칭 어둠', '사실 해맑음', '딸기우유'], roma: 'SIA',
+    accent: '#5d7fd6', hair: '#33416a', hair2: '#151c33',
+    move: { from: 1, sway: .05, swayHz: .75, rise: 3000, tilt: -1.5, side: 'right' } },
+  { id: 'chaeyun', name: '민채윤', student: true, age: '2학년 · 18세',
+    quote: '후배님~ 누나랑 데이트 안 할래? ...왜 표정이 그래, 진심인데?',
+    tags: ['능글맞음', '직진', '고백 머신'], roma: 'CHAEYUN',
+    accent: '#e0507a', hair: '#a8706a', hair2: '#5a3330',
+    move: { from: 1, sway: .08, swayHz: 1, rise: 2600, tilt: 4, side: 'left', diag: true } },
+  { id: 'huiyul', name: '서희율', student: false, age: '졸업생 · 20세',
+    quote: '지율이는, 새싹이야. 물을 너무 많이 주면 안 돼.',
+    tags: ['4차원', '전교 1등', '지율의 언니'], roma: 'HUIYUL',
+    accent: '#9a7cf0', hair: '#ffffff', hair2: '#d9d2ec',
+    move: { from: -1, sway: .03, swayHz: .5, rise: 3200, tilt: 0, side: 'right', bob: true } },
+  { id: 'iru', name: '이루', student: false, age: '나이 불명 · 조력 시스템',
+    quote: "정답 알려줄까~? ...싫은데? 힌트는 '틀렸어'야♪",
+    tags: ['건방짐', '완벽한 조력자', '절대 안 도와줌'], roma: 'IRU',
+    accent: '#18c6d6', hair: '#1c2230', hair2: '#0d5a62',
+    move: { from: -1, sway: .06, swayHz: 2, rise: 2200, tilt: 0, side: 'left', steps: true } },
+];
+
+const KOR_NUM = ['', '한', '두', '세', '네', '다섯', '여섯', '일곱', '여덟', '아홉', '열'];
+const studentCount = CHARS.filter(c => c.student).length;
+const SCENES = [{ type: 'title' }, ...CHARS.map(c => ({ type: 'char', c })), { type: 'end' }];
+const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const PH_AR = 832 / 1216;
+
+const app = document.getElementById('app');
+const stage = document.getElementById('stage');
+const sceneEl = document.getElementById('scene');
+const playBtn = document.getElementById('play');
+const musicBtn = document.getElementById('musicBtn');
+const counter = document.getElementById('counter');
+
+const images = {};
+let idx = 0, elapsed = 0, playing = !RM, lastTs = 0;
+let tl = null, timed = [], camEl = null, bubbleText = null, quoteChars = [];
+let bgm = null, audioUnlocked = false, muted = false;
+try { muted = localStorage.getItem('pv-muted') === '1'; } catch (err) { /* 저장 불가 */ }
+
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+const heartSVG = cls => `<svg class="${cls || ''}" viewBox="0 0 24 24" aria-hidden="true"><use href="#heart"/></svg>`;
+const displayName = c => c.redacted ? '선도부' : c.name;
+const lerp = (a, b, k) => a + (b - a) * k;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const easeIO = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+const easeSine = k => -(Math.cos(Math.PI * k) - 1) / 2;
+
+function hexRgb(hex) { const n = parseInt(hex.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+function mixHex(hex, base, k) {
+  const a = hexRgb(hex), b = hexRgb(base);
+  return '#' + a.map((v, i) => Math.round(b[i] + (v - b[i]) * k).toString(16).padStart(2, '0')).join('');
+}
+function setColors(c) {
+  const s = document.documentElement.style;
+  const a = c ? c.accent : '#c58ad8';
+  s.setProperty('--accent', c ? c.accent : '#ff5fae');
+  s.setProperty('--tint', mixHex(a, '#e9e8ec', .22));
+  s.setProperty('--tint-deep', mixHex(a, '#cfcbd4', .45));
+  if (c) { s.setProperty('--hair', c.hair); s.setProperty('--hair2', c.hair2); }
+}
+
+/* 진행 바 */
+const segsEl = document.getElementById('segs');
+SCENES.forEach(() => segsEl.insertAdjacentHTML('beforeend', '<div class="seg"><i></i></div>'));
+const segBars = [...segsEl.querySelectorAll('i')];
+
+function timeline(s) {
+  if (s.type === 'title') return { dur: 4400 };
+  if (s.type === 'end') return { dur: Infinity };
+  const m = s.c.move;
+  const typeDur = Math.min(2400, [...s.c.quote].length * 52);
+  const rise = m.rise;
+  const toFit = rise + 800;
+  const face = toFit + (m.bounce ? 1000 : 650);
+  const faceDur = m.snap ? 450 : 850;
+  const q0 = face + faceDur + 150;
+  const prof = q0 + typeDur + 1300;
+  return { rise, toFit, face, faceDur, q0, typeDur, prof, profDur: 900, dur: prof + 3000 };
+}
+
+/* ── 카메라 ── */
+function geom(c) {
+  const r = stage.getBoundingClientRect();
+  const sw = r.width, sh = r.height;
+  const im = images[c.id];
+  const ar = im ? im.ar : PH_AR;
+  let ch = sh * .95, cw = ch * ar;
+  if (cw > sw * .9) { cw = sw * .9; ch = cw / ar; }
+  return { sw, sh, cw, ch, phone: sw < 760, fx: im ? im.fx : .5, fy: im ? im.fy : .17 };
+}
+function mixState(a, b, k) {
+  return { u: lerp(a.u, b.u, k), v: lerp(a.v, b.v, k), S: Math.exp(lerp(Math.log(a.S), Math.log(b.S), k)),
+    Tx: lerp(a.Tx, b.Tx, k), Ty: lerp(a.Ty, b.Ty, k), rot: lerp(a.rot, b.rot, k) };
+}
+function camState(c, g, t) {
+  const m = c.move;
+  const sideX = g.phone ? .5 : (m.side === 'left' ? .3 : .7);
+  const bob = m.bob ? Math.sin(t / 520) * g.sh * .008 : 0;
+
+  // A: 발끝에서 좌우로 흔들리며 올라오기
+  // 너무 가깝지 않은 화면으로, 아래쪽은 빨리 지나가고 위로 갈수록 천천히
+  const Sc = clamp((g.sw * .42) / g.cw, 1.25, 1.6);
+  const easeOut = k => 1 - Math.pow(1 - k, 2.4);
+  const A = p => {
+    let pe;
+    if (m.steps) { const n = 7, f = p * n, i = Math.floor(f); pe = Math.min(1, (i + easeIO(f - i)) / n); pe = easeOut(pe); }
+    else pe = easeOut(easeSine(p) * .35 + p * .65);
+    const sway = m.sway ? m.sway * Math.sin(pe * Math.PI * 2 * m.swayHz) * (1 - pe * .6) : 0;
+    return {
+      u: .5 + (m.from * .1) * (1 - pe) + sway, v: lerp(.82, .4, pe), S: Sc,
+      Tx: g.sw * (m.diag ? lerp(.66, .5, pe) : .5), Ty: g.sh * .54 + bob,
+      rot: (m.from || 1) * m.tilt * (1 - pe),
+    };
+  };
+  // B: 전신
+  const fitTy = g.sh - g.ch / 2 - g.sh * .015;
+  const Fit = tt => {
+    let S = 1 + .008 * Math.sin(tt / 600);
+    if (m.bounce && tt > tl.toFit) S += .035 * Math.abs(Math.sin((tt - tl.toFit) / 140)) * Math.exp(-(tt - tl.toFit) / 500);
+    return { u: .5, v: .5, S, Tx: g.sw / 2, Ty: fitTy + bob, rot: 0 };
+  };
+  // C: 얼굴
+  const target = g.phone ? Math.min(g.sh * .38, g.sw * .62) : Math.min(g.sh * .5, g.sw * .36);
+  const Sf = clamp(target / (g.ch * .2), 1.4, 3.6);
+  const Face = d => ({
+    u: g.fx, v: g.fy, S: Sf * (1 + .045 * d),
+    Tx: g.sw * sideX + (g.phone ? 0 : (m.side === 'left' ? 1 : -1) * g.sw * .012 * d),
+    Ty: g.sh * (g.phone ? .34 : .42) + bob, rot: 0,
+  });
+  // D: 프로필
+  const Sp = g.phone ? .86 : 1;
+  const Prof = tt => ({
+    u: .5, v: .5, S: Sp * (1 + .006 * Math.sin(tt / 700)),
+    Tx: g.sw * (g.phone ? .5 : (m.side === 'left' ? .28 : .72)),
+    Ty: (g.phone ? g.sh * .4 : g.sh - g.ch * Sp / 2 - g.sh * .015) + bob, rot: 0,
+  });
+
+  if (t < tl.rise) return A(t / tl.rise);
+  if (t < tl.toFit) return mixState(A(1), Fit(t), easeIO((t - tl.rise) / (tl.toFit - tl.rise)));
+  if (t < tl.face) return Fit(t);
+  const faceEnd = tl.face + tl.faceDur;
+  if (t < faceEnd) return mixState(Fit(tl.face), Face(0), easeIO((t - tl.face) / tl.faceDur));
+  if (t < tl.prof) return Face((t - faceEnd) / (tl.prof - faceEnd));
+  if (t < tl.prof + tl.profDur) return mixState(Face(1), Prof(t), easeIO((t - tl.prof) / tl.profDur));
+  return Prof(t);
+}
+function placeCam(c, t) {
+  if (!camEl) return;
+  const g = geom(c);
+  const st = camState(c, g, t);
+  camEl.style.width = g.cw + 'px';
+  camEl.style.height = g.ch + 'px';
+  camEl.style.transform = `translate(${st.Tx}px, ${st.Ty}px) rotate(${st.rot}deg) scale(${st.S}) translate(${-st.u * g.cw}px, ${-st.v * g.ch}px)`;
+  camEl.style.opacity = RM ? 1 : clamp(t / 400, 0, 1);
+}
+function camInner(c) {
+  const im = images[c.id];
+  if (im) return `<img src="${im.url}" alt="${esc(displayName(c))} 스탠딩 일러스트">`;
+  return `<div class="sil" aria-hidden="true"><div class="legs"></div><div class="body"></div><div class="ribbon"></div><div class="head"></div>
+    <div class="note">${esc(IMG_DIR + c.id)}.png<br>파일을 넣어주세요</div></div>`;
+}
+
+/* ── 장면 그리기 ── */
+function render(i) {
+  idx = i; elapsed = 0;
+  const s = SCENES[i];
+  tl = timeline(s);
+  app.classList.add('instant');
+  camEl = null; bubbleText = null;
+
+  if (s.type === 'title') {
+    setColors(null);
+    const gate = bgm && !audioUnlocked && !muted;
+    sceneEl.innerHTML = `
+      <div class="scene title-scene">
+        <h1 class="title-logo t on" data-at="0" aria-label="연애 로딩중 2">
+          <span class="row">${heartSVG('heart-ic')} <span class="logo" data-text="연애">연애</span> ${heartSVG('heart-ic')}</span>
+          <span class="row"><span class="logo alt" data-text="로딩중">로딩중</span><span class="logo two" data-text="2">2</span></span>
+        </h1>
+        ${gate ? `<button class="gate" id="gate" type="button">▶ 음악과 함께 시작</button>` : `
+        <div class="loading t" data-at="500">
+          <div class="bar"><i id="loadbar"></i></div>
+          <div class="load-txt"><span id="loadmsg">설렘 불러오는 중…</span><span id="loadpct">0%</span></div>
+        </div>
+        <p class="tap-hint t" data-at="900">화면 오른쪽을 누르면 다음 · 왼쪽을 누르면 이전</p>`}
+      </div>`;
+    if (gate) playing = false;
+  } else if (s.type === 'end') {
+    setColors(null);
+    const faces = CHARS.filter(c => c.student).map(c => {
+      const im = images[c.id];
+      if (!im) return `<div class="face" style="--c:${c.accent};background:${c.accent}">${c.redacted ? '?' : esc(c.name.slice(1, 2))}</div>`;
+      const zoom = 100 / .26;
+      const bw = zoom * im.ar;
+      const bx = (im.fx * bw - 50) / (bw - 100) * 100;
+      const by = (im.fy * zoom - 50) / (zoom - 100) * 100;
+      return `<div class="face" style="--c:${c.accent};background-image:url('${im.url}');background-size:${bw}% auto;background-position:${bx}% ${by}%" role="img" aria-label="${esc(displayName(c))}"></div>`;
+    }).join('');
+    const ready = !!CHAT_URL;
+    sceneEl.innerHTML = `
+      <div class="scene end-scene">
+        <p class="end-lead t" data-at="0">${KOR_NUM[studentCount] || studentCount} 명의 학생들과 함께하는</p>
+        <h1 class="logo end-logo t" data-at="0" data-text="당신만의 이야기">당신만의 이야기</h1>
+        <div class="faces t" data-at="0">${faces}</div>
+        <a class="cta t" data-at="0" ${ready ? `href="${esc(CHAT_URL)}" target="_blank" rel="noopener"` : 'aria-disabled="true" role="link"'}>
+          ${heartSVG()} ${ready ? '지금 바로 시작하기' : '채팅 링크 준비 중'}
+        </a>
+        <button class="replay t" data-at="0" data-go="0" type="button">처음부터 다시 보기</button>
+      </div>`;
+  } else {
+    const c = s.c;
+    setColors(c);
+    const flip = c.move.side === 'right';
+    const nameText = c.redacted ? '???' : c.name;
+    sceneEl.innerHTML = `
+      <div class="scene">
+        <div class="bgname" aria-hidden="true">${esc(c.roma)}</div>
+        <div class="cam" id="cam">${camInner(c)}</div>
+        <div class="bubble t ${flip ? 'flip' : ''}" data-at="${tl.q0}" data-until="${tl.prof}">
+          <span class="who">${esc(displayName(c))}</span><span id="btext"></span>
+        </div>
+        <div class="profile t ${flip ? 'flip' : ''}" data-at="${tl.prof + 200}">
+          <h2 class="logo char-name p-name" data-text="${esc(nameText)}">${c.redacted ? '<span aria-label="이름 미정">???</span>' : esc(c.name)}</h2>
+          <div class="p-meta"><span class="pill solid">${esc(c.age)}</span>${c.redacted ? '<span class="pill">이름 미정</span>' : ''}</div>
+          <div class="p-tags">${c.tags.map(x => `<span>#${esc(x)}</span>`).join('')}</div>
+        </div>
+      </div>`;
+    camEl = sceneEl.querySelector('#cam');
+    bubbleText = sceneEl.querySelector('#btext');
+    quoteChars = [...c.quote];
+  }
+
+  timed = [...sceneEl.querySelectorAll('.t')];
+  apply(RM ? (Number.isFinite(tl.dur) ? tl.dur - 1 : 1e9) : 0);
+  void sceneEl.offsetWidth;
+  app.classList.remove('instant');
+  counter.textContent = `${String(i + 1).padStart(2, '0')} / ${String(SCENES.length).padStart(2, '0')}`;
+  updatePlayBtn();
+}
+
+function apply(t) {
+  for (const el of timed) {
+    const until = el.dataset.until ? +el.dataset.until : Infinity;
+    el.classList.toggle('on', t >= +el.dataset.at && t < until);
+  }
+  const s = SCENES[idx];
+  if (s.type === 'title') {
+    const bar = document.getElementById('loadbar');
+    if (bar) {
+      const p = clamp((t - 600) / 2800, 0, 1);
+      bar.style.width = (p * 100) + '%';
+      document.getElementById('loadpct').textContent = Math.round(p * 100) + '%';
+      document.getElementById('loadmsg').textContent = p >= 1 ? '로딩 완료! ♥' : p > .6 ? '두근거림 충전 중…' : '설렘 불러오는 중…';
+    }
+  }
+  if (s.type === 'char') {
+    placeCam(s.c, t);
+    if (bubbleText) {
+      const p = clamp((t - tl.q0) / tl.typeDur, 0, 1);
+      const n = Math.ceil(p * quoteChars.length);
+      bubbleText.innerHTML = esc(quoteChars.slice(0, n).join('')) + (p > 0 && p < 1 && !RM ? '<span class="caret"></span>' : '');
+    }
+  }
+  segBars.forEach((b, k) => {
+    const w = k < idx ? 1 : k > idx ? 0 : (Number.isFinite(tl.dur) ? Math.min(1, t / tl.dur) : 1);
+    b.style.width = (w * 100) + '%';
+  });
+}
+
+function loop(ts) {
+  const dt = lastTs ? Math.min(ts - lastTs, 100) : 0;
+  lastTs = ts;
+  if (playing) {
+    elapsed += dt;
+    if (elapsed >= tl.dur) { if (idx < SCENES.length - 1) render(idx + 1); }
+    else apply(elapsed);
+  }
+  requestAnimationFrame(loop);
+}
+
+function go(i) { render(clamp(i, 0, SCENES.length - 1)); }
+function next() { if (idx < SCENES.length - 1) go(idx + 1); }
+function prev() { if (elapsed > 1500 && !RM) go(idx); else go(idx - 1); }
+function updatePlayBtn() { playBtn.textContent = playing ? '❚❚ 정지' : '▶ 재생'; playBtn.setAttribute('aria-pressed', String(playing)); }
+function togglePlay() {
+  if (idx === SCENES.length - 1 && !playing) { playing = true; go(0); return; }
+  playing = !playing; updatePlayBtn();
+}
+
+/* ── 배경음악 ── */
+function tryPlayMusic() {
+  if (!bgm || muted || !bgm.paused) return;
+  bgm.play().then(() => { audioUnlocked = true; updateMusicBtn(); }).catch(() => {});
+}
+function updateMusicBtn() {
+  musicBtn.hidden = !bgm;
+  if (!bgm) return;
+  musicBtn.textContent = muted ? '♪ 꺼짐' : '♪ 켜짐';
+  musicBtn.classList.toggle('on', !muted);
+}
+musicBtn.addEventListener('click', () => {
+  if (!bgm) return;
+  muted = !muted;
+  try { localStorage.setItem('pv-muted', muted ? '1' : '0'); } catch (err) { /* 저장 불가 */ }
+  if (muted) bgm.pause(); else tryPlayMusic();
+  updateMusicBtn();
+});
+document.addEventListener('pointerdown', tryPlayMusic);
+document.addEventListener('keydown', tryPlayMusic);
+
+/* ── 조작 ── */
+document.getElementById('next').addEventListener('click', next);
+document.getElementById('prev').addEventListener('click', prev);
+playBtn.addEventListener('click', togglePlay);
+stage.addEventListener('click', e => {
+  if (e.target.closest('#gate')) { tryPlayMusic(); audioUnlocked = true; playing = true; go(0); return; }
+  const g = e.target.closest('[data-go]');
+  if (g) { playing = true; go(+g.dataset.go); return; }
+  if (e.target.closest('a, button')) return;
+  const r = stage.getBoundingClientRect();
+  (e.clientX - r.left < r.width / 3) ? prev() : next();
+});
+document.addEventListener('keydown', e => {
+  if (e.target.closest && e.target.closest('input')) return;
+  if (e.key === 'ArrowRight') { next(); e.preventDefault(); }
+  else if (e.key === 'ArrowLeft') { prev(); e.preventDefault(); }
+  else if (e.key === ' ' && !e.target.closest('button, a')) { togglePlay(); e.preventDefault(); }
+});
+window.addEventListener('resize', () => { if (SCENES[idx].type === 'char') apply(elapsed); });
+
+/* ── 파일 불러오기 ── */
+function refreshScene() {
+  const s = SCENES[idx];
+  if (s.type === 'end') { render(idx); return; }
+  if (s.type === 'char' && camEl) { camEl.innerHTML = camInner(s.c); apply(elapsed); }
+}
+function loadImages() {
+  return Promise.all(CHARS.map(c => new Promise(res => {
+    const im = new Image();
+    im.onload = () => {
+      const f = FACE[c.id] || [.5, .17];
+      images[c.id] = { url: im.src, ar: im.naturalWidth / im.naturalHeight, fx: f[0], fy: f[1] };
+      res();
+    };
+    im.onerror = () => res(); // 파일이 없으면 실루엣으로 대신 보여줌
+    im.src = IMG_DIR + c.id + '.png';
+  })));
+}
+function loadBgm() {
+  const a = new Audio();
+  a.preload = 'auto';
+  a.addEventListener('canplay', () => {
+    if (bgm) return;
+    bgm = a; bgm.loop = true; bgm.volume = .7;
+    updateMusicBtn();
+    // 아직 타이틀이면 '시작' 버튼을 보여준다 (브라우저는 누르기 전엔 소리를 막음)
+    if (idx === 0 && !audioUnlocked && !muted) render(0);
+  }, { once: true });
+  a.addEventListener('error', () => {}, { once: true });
+  a.src = BGM_FILE;
+}
+
+/* ── 시작 ── */
+updateMusicBtn();
+const startId = location.hash.slice(1);
+const startIdx = SCENES.findIndex(sc => sc.type === 'char' && sc.c.id === startId);
+render(startIdx > 0 ? startIdx : 0);
+requestAnimationFrame(loop);
+loadImages().then(refreshScene);
+loadBgm();
+</script>
+
+</body>
+</html>
