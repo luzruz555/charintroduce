@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>연애 로딩중 2</title>
-<meta name="description" content="연애 로딩중 2 캐릭터 PV">
+<meta name="description" content="연애 로딩중 2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap">
@@ -220,6 +220,30 @@ body { color: var(--ink); font-family: var(--f-body); overflow: hidden; backgrou
 .spacer { flex: 1; }
 .counter { font: 14px var(--f-logo); color: var(--soft); font-variant-numeric: tabular-nums; }
 
+/* 볼륨 */
+.vol { display: flex; align-items: center; gap: 8px; }
+.vol input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 96px; height: 28px; background: none; cursor: pointer; margin: 0;
+  --p: 70%;
+}
+.vol input[type=range]::-webkit-slider-runnable-track {
+  height: 6px; border-radius: 99px;
+  background: linear-gradient(90deg, var(--pink) var(--p), rgba(61,52,69,.15) var(--p));
+}
+.vol input[type=range]::-moz-range-track { height: 6px; border-radius: 99px; background: rgba(61,52,69,.15); }
+.vol input[type=range]::-moz-range-progress { height: 6px; border-radius: 99px; background: var(--pink); }
+.vol input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 18px; height: 18px; margin-top: -6px; border-radius: 50%;
+  background: var(--white); box-shadow: 0 0 0 2px var(--pink), 0 2px 6px rgba(61,52,69,.25);
+}
+.vol input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border: 0; border-radius: 50%;
+  background: var(--white); box-shadow: 0 0 0 2px var(--pink), 0 2px 6px rgba(61,52,69,.25);
+}
+.vol input[type=range].off::-webkit-slider-runnable-track { background: rgba(61,52,69,.15); }
+.vol input[type=range].off::-moz-range-progress { background: transparent; }
+.vol input[type=range]:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; border-radius: 99px; }
+
 /* 이미지·음악 넣기 패널 */
 .panel {
   position: absolute; right: 0; bottom: 0; z-index: 5;
@@ -258,6 +282,8 @@ body { color: var(--ink); font-family: var(--f-body); overflow: hidden; backgrou
   .p-tags span { font-size: 15px; }
   .btn { padding: 8px 11px; font-size: 13px; }
   .counter { display: none; }
+  .vol { gap: 6px; }
+  .vol input[type=range] { width: 64px; }
   .face { width: 56px; font-size: 18px; }
 }
 @media (prefers-reduced-motion: reduce) { .cta { animation: none; } }
@@ -290,7 +316,10 @@ body { margin: 0; }
     <button class="btn" id="next" type="button" aria-label="다음 장면">▶</button>
     <span class="counter" id="counter"></span>
     <span class="spacer"></span>
-    <button class="btn" id="musicBtn" type="button" hidden>♪ 음악</button>
+    <span class="vol" id="volBox" hidden>
+      <input type="range" id="volSlider" min="0" max="100" step="1" value="70" aria-label="배경음악 볼륨">
+      <button class="btn" id="musicBtn" type="button">♪ 음악</button>
+    </span>
   </div>
 </div>
 
@@ -305,13 +334,13 @@ const BGM_FILE = 'bgm/bgm.mp3';
 
 /* 얼굴 위치 (이미지 가로·세로 비율, 0~1). face.html에서 찍은 값을 그대로 붙여넣으면 돼요 */
 const FACE = {
-  jiyul:   [0.50, 0.33],
-  prefect: [0.49, 0.34],
-  soi:     [0.47, 0.35],
-  sia:     [0.44, 0.33],
-  chaeyun: [0.46, 0.29],
-  huiyul:  [0.55, 0.22],
-  iru:     [0.51, 0.24],
+  jiyul:   [0.50, 0.17],
+  prefect: [0.50, 0.17],
+  soi:     [0.50, 0.17],
+  sia:     [0.50, 0.17],
+  chaeyun: [0.50, 0.17],
+  huiyul:  [0.50, 0.17],
+  iru:     [0.50, 0.17],
 };
 /* ======================================== */
 
@@ -368,6 +397,8 @@ const stage = document.getElementById('stage');
 const sceneEl = document.getElementById('scene');
 const playBtn = document.getElementById('play');
 const musicBtn = document.getElementById('musicBtn');
+const volBox = document.getElementById('volBox');
+const volSlider = document.getElementById('volSlider');
 const counter = document.getElementById('counter');
 
 const images = {};
@@ -375,6 +406,11 @@ let idx = 0, elapsed = 0, playing = !RM, lastTs = 0;
 let tl = null, timed = [], camEl = null, bubbleText = null, quoteChars = [];
 let bgm = null, audioUnlocked = false, muted = false;
 try { muted = localStorage.getItem('pv-muted') === '1'; } catch (err) { /* 저장 불가 */ }
+let volume = 0.7;
+try {
+  const sv = parseFloat(localStorage.getItem('pv-vol'));
+  if (!isNaN(sv)) volume = Math.min(1, Math.max(0, sv));
+} catch (err) { /* 저장 불가 */ }
 
 const esc = s => String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 const heartSVG = cls => `<svg class="${cls || ''}" viewBox="0 0 24 24" aria-hidden="true"><use href="#heart"/></svg>`;
@@ -627,22 +663,61 @@ function togglePlay() {
 }
 
 /* ── 배경음악 ── */
+// 아이폰은 audio.volume을 무시해서, Web Audio로 볼륨을 조절한다 (안 되면 audio.volume으로)
+let actx = null, gainNode = null;
+function setupGain() {
+  if (gainNode || !bgm) return;
+  // 볼륨이 원래 먹히는 브라우저면 그대로 둔다 (Web Audio는 꼭 필요할 때만)
+  const probe = new Audio(); probe.volume = .5;
+  if (Math.abs(probe.volume - .5) < .01) return;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    actx = new AC();
+    gainNode = actx.createGain();
+    actx.createMediaElementSource(bgm).connect(gainNode).connect(actx.destination);
+    bgm.volume = 1;
+  } catch (err) { actx = null; gainNode = null; }
+  applyVolume();
+}
+function applyVolume() {
+  const v = volume * volume; // 귀에 자연스럽게 들리도록 곡선 적용
+  if (gainNode) gainNode.gain.value = v;
+  else if (bgm) bgm.volume = v;
+}
 function tryPlayMusic() {
-  if (!bgm || muted || !bgm.paused) return;
+  if (!bgm || muted) return;
+  setupGain();
+  if (actx && actx.state === 'suspended') actx.resume().catch(() => {});
+  if (!bgm.paused) return;
   bgm.play().then(() => { audioUnlocked = true; updateMusicBtn(); }).catch(() => {});
 }
 function updateMusicBtn() {
-  musicBtn.hidden = !bgm;
+  volBox.hidden = !bgm;
   if (!bgm) return;
   musicBtn.textContent = muted ? '♪ 꺼짐' : '♪ 켜짐';
   musicBtn.classList.toggle('on', !muted);
+  volSlider.value = Math.round(volume * 100);
+  volSlider.style.setProperty('--p', volSlider.value + '%');
+  volSlider.classList.toggle('off', muted);
 }
-musicBtn.addEventListener('click', () => {
-  if (!bgm) return;
-  muted = !muted;
+function setMuted(m) {
+  muted = m;
   try { localStorage.setItem('pv-muted', muted ? '1' : '0'); } catch (err) { /* 저장 불가 */ }
   if (muted) bgm.pause(); else tryPlayMusic();
   updateMusicBtn();
+}
+musicBtn.addEventListener('click', () => {
+  if (!bgm) return;
+  if (muted && volume === 0) volume = .5; // 0인 채로 켜면 들리지 않으니 중간으로
+  setMuted(!muted);
+});
+volSlider.addEventListener('input', () => {
+  volume = volSlider.value / 100;
+  try { localStorage.setItem('pv-vol', String(volume)); } catch (err) { /* 저장 불가 */ }
+  applyVolume();
+  if (bgm && muted && volume > 0) setMuted(false); // 꺼진 상태에서 올리면 다시 켬
+  else updateMusicBtn();
 });
 document.addEventListener('pointerdown', tryPlayMusic);
 document.addEventListener('keydown', tryPlayMusic);
@@ -690,7 +765,7 @@ function loadBgm() {
   a.preload = 'auto';
   a.addEventListener('canplay', () => {
     if (bgm) return;
-    bgm = a; bgm.loop = true; bgm.volume = .7;
+    bgm = a; bgm.loop = true; applyVolume();
     updateMusicBtn();
     // 아직 타이틀이면 '시작' 버튼을 보여준다 (브라우저는 누르기 전엔 소리를 막음)
     if (idx === 0 && !audioUnlocked && !muted) render(0);
